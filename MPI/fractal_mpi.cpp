@@ -73,23 +73,21 @@ int main(int argc, char *argv[])
 
   unsigned char *finalPic = NULL;
   if(my_rank == 0) {
-  	// allocate array to hold frames
+  	// allocate array to hold all frames
    	finalPic = new unsigned char[frames * width * width];
   }
-  // pic = smaller array for a chunk of frames
+  // smaller array for one process to compute a chunk of frames
   unsigned char* pic = new unsigned char[frameAmt * width * width];
-
-  //call for barrier before timer's started
-  MPI_Barrier(MPI_COMM_WORLD); 
+  
   // start time
   struct timeval start, end;
+  // call for barrier before timer's started
+  MPI_Barrier(MPI_COMM_WORLD); 
   gettimeofday(&start, NULL);
 
-  // each process computes a certain range or block of frames
-  // double delta = Delta;
+  // each process computes a range/chunk of frames
   double delta = Delta * pow(0.99, my_start);
   for (int frame = my_start; frame < my_end; frame++) {
-  	printf("%d computing frame\n",frame);
     delta *= 0.99;
     const double xMin = xMid - delta;
     const double yMin = yMid - delta;
@@ -124,8 +122,7 @@ int main(int argc, char *argv[])
   if(my_rank == 0) printf("compute time: %.4f s\n", runtime);
 
   // verify result by writing frames to BMP files
-  if(my_rank == 0) {
-    if ((width <= 400) && (frames <= 30)) {
+    if ((width <= 400) && (frames <= 30) && (my_rank==0) {
       for (int frame = 0; frame < frames; frame++) {
         char name[32];
           sprintf(name, "fractal%d.bmp", frame + 1000);
@@ -137,7 +134,6 @@ int main(int argc, char *argv[])
   // deallocate memory 
   delete [] pic;
   if(my_rank==0) delete [] finalPic;
-
   MPI_Finalize();
   return 0;
 }

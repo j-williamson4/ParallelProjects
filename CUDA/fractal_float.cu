@@ -47,9 +47,7 @@ void FractalKernel(const int frames, const int width, unsigned char pic[])
     const float xMin = xMid - delta;
     const float yMin = yMid - delta;
     const float dw = 2.0 * delta / width;
-  //  for (int row = 0; row < width; row++) {
       const float cy = -yMin - row * dw;
-  //  for (int col = 0; col < width; col++) {
       const float cx = -xMin - col * dw;
       float x = cx;
       float y = cy;
